@@ -16,6 +16,7 @@
     "express": "^4.17.3",
     "feed": "^4.2.2",
     "moment": "^2.29.1",
+    "node-cache": "^5.1.2",
     "node-fetch": "^2.6.7",
     "pino-http": "^6.6.0"
   },

@@ -3,13 +3,14 @@ import fetch from 'node-fetch';
 import pino from 'pino-http';
 import { Feed } from 'feed';
 import moment from 'moment';
+import cache from './cache';
 
 const app = express()
 const port = 3000
 
 app.use(pino());
 
-app.get('/:programma', async (req, res, next) => {
+app.get('/:programma', cache(60), async (req, res, next) => {
   try {
     const programmaInfo = await getProgrammaInfoAsync(`https://www.raiplaysound.it/programmi/${req.params.programma}.json`);
     const feed = generateFeed(programmaInfo);
