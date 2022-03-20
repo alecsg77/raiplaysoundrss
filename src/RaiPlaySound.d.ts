@@ -1,4 +1,4 @@
-declare namespace RaiPlaySound {
+declare module 'RaiPlaySound' {
 
     interface PageUpdated {
         date: string;
@@ -226,4 +226,3 @@ declare namespace RaiPlaySound {
     }
 
 }
-
