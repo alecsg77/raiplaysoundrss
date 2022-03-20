@@ -1,7 +1,6 @@
 import { Podcast } from 'podcast';
 import moment from 'moment';
 import { ProgrammaInfo } from 'RaiPlaySound';
-import xmlescape from 'xml-escape';
 
 export function newProgrammaFeed(programmaInfo: ProgrammaInfo, options?: { feed?: string }) {
     const feed = new Podcast({
@@ -24,7 +23,7 @@ export function newProgrammaFeed(programmaInfo: ProgrammaInfo, options?: { feed?
         },
         categories: programmaInfo.podcast_info.genres.map((genre) => genre.name),
         itunesAuthor: "RaiPlay Sound",
-        itunesSummary: xmlescape(programmaInfo.podcast_info.description),
+        itunesSummary: programmaInfo.podcast_info.description,
         itunesCategory: [{ text: 'Society & Culture' }],
         feedUrl: options?.feed
     });
@@ -42,8 +41,8 @@ export function newProgrammaFeed(programmaInfo: ProgrammaInfo, options?: { feed?
                 type: 'audio/mpeg'
             },
             itunesAuthor: "RaiPlay Sound",
-            itunesTitle: xmlescape(post.episode_title),
-            itunesSummary: xmlescape(post.description),
+            itunesTitle: post.episode_title,
+            itunesSummary: post.description,
             itunesDuration: post.audio?.duration
         });
     });
