@@ -1,4 +1,5 @@
 import express from 'express';
+import compression from 'compression';
 import cache from './cache';
 import { httpLogger } from './logger';
 import { fetchProgrammaAsync } from './api';
@@ -7,6 +8,7 @@ import { newProgrammaFeed } from './feed';
 const app = express()
 const port = 3000
 
+app.use(compression());
 app.use(httpLogger);
 
 app.get('/:programma', cache(60), async (req, res, next) => {
