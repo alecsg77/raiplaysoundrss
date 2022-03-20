@@ -5,6 +5,11 @@ import xmlescape from 'xml-escape';
 
 export function newProgrammaFeed(programmaInfo: ProgrammaInfo, options?: { feed?: string }) {
     const feed = new Podcast({
+        namespaces: {
+            iTunes: true,
+            podcast: false,
+            simpleChapters: false
+        },
         title: programmaInfo.podcast_info.title,
         description: programmaInfo.podcast_info.description,
         siteUrl: 'https://www.raiplaysound.it' + programmaInfo.podcast_info.weblink,
@@ -13,18 +18,18 @@ export function newProgrammaFeed(programmaInfo: ProgrammaInfo, options?: { feed?
         copyright: "Rai - Radiotelevisione Italiana Spa",
         pubDate: moment(programmaInfo.block.update_date, "DD-MM-YYYY hh:mm:ss").toDate(),
         generator: "RaiPlay Sound",
-        author: "RaiPlay Sound",
         itunesOwner: {
             name: "RaiPlay Sound",
             email: "portaliradio@rai.it"
         },
         categories: programmaInfo.podcast_info.genres.map((genre) => genre.name),
+        itunesAuthor: "RaiPlay Sound",
         itunesSummary: xmlescape(programmaInfo.podcast_info.description),
-        itunesCategory: [{text: 'Society &amp; Culture'}],
+        itunesCategory: [{ text: 'Society & Culture' }],
         feedUrl: options?.feed
     });
 
-    programmaInfo.block.cards.slice(-1).forEach(post => {
+    programmaInfo.block.cards.forEach(post => {
         feed.addItem({
             title: post.episode_title,
             url: 'https://www.raiplaysound.it' + post.weblink,
@@ -42,6 +47,22 @@ export function newProgrammaFeed(programmaInfo: ProgrammaInfo, options?: { feed?
             itunesDuration: post.audio?.duration
         });
     });
-
+    for (const i in feed.feed.customElements) {
+        const element = feed.feed.customElements[i] as { "itunes:explicit": string };
+        if (element['itunes:explicit'] === undefined)
+            continue;
+        element['itunes:explicit'] = "no";
+    }
+    for (const i in feed.items) {
+        const item = feed.items[i];
+        if (item.customElements === undefined)
+            continue;
+        for (const key in item.customElements) {
+            const element = item.customElements[key] as { "itunes:explicit": string };
+            if (element['itunes:explicit'] === undefined)
+                continue;
+            element['itunes:explicit'] = "no";
+        }
+    }
     return feed.buildXml();
 }
