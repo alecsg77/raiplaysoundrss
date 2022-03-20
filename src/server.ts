@@ -17,8 +17,13 @@ app.get('/:programma', cache(60), async (req, res, next) => {
   try {
     const programmaInfo = await fetchProgrammaAsync(req.params.programma);
     const feed = newProgrammaFeed(programmaInfo, { feed: req.publicUrl });
-    res.set('Content-Type', 'application/rss+xml');
-    res.send(feed.rss2());
+    const contentType = req.accepts(['text/xml', 'application/xml', 'application/rss+xml']);
+    if (contentType === false) {
+      res.status(406).end();
+      return;
+    }
+    res.set('Content-Type', contentType);
+    res.send(feed);
   } catch (error) {
     next(error);
   }
