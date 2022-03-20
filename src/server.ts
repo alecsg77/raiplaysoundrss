@@ -1,13 +1,13 @@
 import express from 'express';
-import pino from 'pino-http';
 import cache from './cache';
+import { httpLogger } from './logger';
 import { fetchProgrammaAsync } from './api';
 import { newProgrammaFeed } from './feed';
 
 const app = express()
 const port = 3000
 
-app.use(pino());
+app.use(httpLogger);
 
 app.get('/:programma', cache(60), async (req, res, next) => {
   try {

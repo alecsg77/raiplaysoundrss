@@ -18,7 +18,8 @@
     "moment": "^2.29.1",
     "node-cache": "^5.1.2",
     "node-fetch": "^2.6.7",
-    "pino-http": "^6.6.0"
+    "pino-http": "^6.6.0",
+    "pino-pretty": "^7.5.4"
   },
   "devDependencies": {
     "@types/express": "^4.17.13",
