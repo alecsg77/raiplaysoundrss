@@ -3,7 +3,7 @@ import moment from 'moment';
 import { ProgrammaInfo } from 'RaiPlaySound';
 export { Feed } from 'feed';
 
-export function newProgrammaFeed(programmaInfo: ProgrammaInfo) {
+export function newProgrammaFeed(programmaInfo: ProgrammaInfo, options?: { feed?: string} ) {
     const feed = new Feed({
         title: programmaInfo.podcast_info.title,
         description: programmaInfo.podcast_info.description,
@@ -17,7 +17,8 @@ export function newProgrammaFeed(programmaInfo: ProgrammaInfo) {
         author: {
             name: "RaiPlay Sound",
             email: "portaliradio@rai.it"
-        }
+        },
+        feed: options?.feed
     });
 
     programmaInfo.podcast_info.genres.forEach(genre => feed.addCategory(genre.name));

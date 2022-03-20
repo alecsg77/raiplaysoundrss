@@ -2,6 +2,7 @@ import express from 'express';
 import compression from 'compression';
 import cache from './cache';
 import { httpLogger } from './logger';
+import publicUrl from './publicUrl';
 import { fetchProgrammaAsync } from './api';
 import { newProgrammaFeed } from './feed';
 
@@ -10,11 +11,12 @@ const port = 3000
 
 app.use(compression());
 app.use(httpLogger);
+app.use(publicUrl());
 
 app.get('/:programma', cache(60), async (req, res, next) => {
   try {
     const programmaInfo = await fetchProgrammaAsync(req.params.programma);
-    const feed = newProgrammaFeed(programmaInfo);
+    const feed = newProgrammaFeed(programmaInfo, { feed: req.publicUrl });
     res.set('Content-Type', 'application/rss+xml');
     res.send(feed.rss2());
   } catch (error) {
