@@ -1,8 +1,9 @@
 import { Podcast } from 'podcast';
 import moment from 'moment';
 import { ProgrammaInfo } from 'RaiPlaySound';
+import { urlResolver } from './api';
 
-export function newProgrammaFeed(programmaInfo: ProgrammaInfo, options?: { feed?: string }) {
+export function newProgrammaFeed(programmaInfo: ProgrammaInfo, options?: { feedUrl?: string }) {
     const feed = new Podcast({
         namespaces: {
             iTunes: true,
@@ -11,9 +12,9 @@ export function newProgrammaFeed(programmaInfo: ProgrammaInfo, options?: { feed?
         },
         title: programmaInfo.podcast_info.title,
         description: programmaInfo.podcast_info.description,
-        siteUrl: 'https://www.raiplaysound.it' + programmaInfo.podcast_info.weblink,
+        siteUrl: urlResolver.link(programmaInfo.podcast_info.weblink, options?.feedUrl),
         language: "it-it",
-        imageUrl: 'https://www.raiplaysound.it' + programmaInfo.podcast_info.image,
+        imageUrl: urlResolver.image(programmaInfo.podcast_info.image, options?.feedUrl),
         copyright: "Rai - Radiotelevisione Italiana Spa",
         pubDate: moment(programmaInfo.block.update_date, "DD-MM-YYYY hh:mm:ss").toDate(),
         generator: "RaiPlay Sound",
@@ -25,19 +26,19 @@ export function newProgrammaFeed(programmaInfo: ProgrammaInfo, options?: { feed?
         itunesAuthor: "RaiPlay Sound",
         itunesSummary: programmaInfo.podcast_info.description,
         itunesCategory: [{ text: 'Society & Culture' }],
-        feedUrl: options?.feed
+        feedUrl: options?.feedUrl
     });
 
     programmaInfo.block.cards.forEach(post => {
         feed.addItem({
             title: post.episode_title,
-            url: 'https://www.raiplaysound.it' + post.weblink,
+            url: urlResolver.link(post.weblink, options?.feedUrl),
             guid: post.uniquename,
             description: post.description,
             date: moment(post.literal_publication_date, "DD MMM YYYY", "it").toDate() || moment(post.create_date, "DD-MM-YYYY").toDate(),
-            imageUrl: 'https://www.raiplaysound.it' + post.image,
+            imageUrl: urlResolver.image(post.image, options?.feedUrl),
             enclosure: {
-                url: (post.downloadable_audio || post.audio).url,
+                url: urlResolver.audio((post.downloadable_audio || post.audio).url, options?.feedUrl),
                 type: 'audio/mpeg'
             },
             itunesAuthor: "RaiPlay Sound",
