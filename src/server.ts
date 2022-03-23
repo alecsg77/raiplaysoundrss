@@ -29,7 +29,7 @@ app.get('/:programma', cache('1 minute'), async (req, res, next) => {
   }
 })
 
-app.use('/:programma/audio/:cont', httpLogger, proxyMediaHandler('cont'));
+app.use('/:programma/audio/:cont.mp3', httpLogger, proxyMediaHandler('cont'));
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
