@@ -21,5 +21,6 @@ export const urlResolver = {
     link: (url: string, feedUrl?: string) => new URL(url, 'https://www.raiplaysound.it').href,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     image: (url: string, feedUrl?: string) => new URL(url, 'https://www.raiplaysound.it').href,
-    audio: (url: string, feedUrl?: string) =>  `${feedUrl || '.'}/audio/${new URL(url).searchParams.get('cont')}.mp3`
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    audio: (url: string, feedUrl?: string) =>  url.replace('.htm','.mp3')
 };
