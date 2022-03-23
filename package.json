@@ -17,14 +17,12 @@
     "apicache": "^1.6.3",
     "compression": "^1.7.4",
     "express": "^4.17.3",
-    "http-proxy-middleware": "^2.0.4",
     "moment": "^2.29.1",
     "node-cache": "^5.1.2",
     "node-fetch": "^2.6.7",
     "pino-http": "^6.6.0",
     "pino-pretty": "^7.5.4",
-    "podcast": "^2.0.0",
-    "xml-escape": "^1.1.0"
+    "podcast": "^2.0.0"
   },
   "devDependencies": {
     "@types/apicache": "^1.6.1",

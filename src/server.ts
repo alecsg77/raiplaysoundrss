@@ -1,10 +1,9 @@
 import express from 'express';
 import compression from 'compression';
-import cache from './cache';
+import { middleware as cache } from 'apicache';
 import { httpLogger } from './logger';
 import publicUrl from './publicUrl';
-import { fetchProgrammaAsync, proxyMediaHandler } from './api';
-import { newProgrammaFeed } from './feed';
+import { generateProgrammaFeed } from './RaiPlaySoundRSS';
 
 const app = express()
 const port = 3000
@@ -20,17 +19,15 @@ app.get('/:programma', cache('1 minute'), async (req, res, next) => {
       res.status(406).end();
       return;
     }
-    const programmaInfo = await fetchProgrammaAsync(req.params.programma);
-    const feed = newProgrammaFeed(programmaInfo, { feedUrl: req.publicUrl });
     res.set('Content-Type', contentType);
+    const feed = await generateProgrammaFeed(req.params.programma, { feedUrl: req.publicUrl });
     res.send(feed);
   } catch (error) {
     next(error);
   }
 })
 
-app.use('/:programma/audio/:cont.mp3', httpLogger, proxyMediaHandler('cont'));
-
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
+  console.log(`Listening on port ${port}`)
 })
+

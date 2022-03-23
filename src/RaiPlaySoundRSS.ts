@@ -1,9 +1,26 @@
+import fetch from 'node-fetch';
 import { Podcast } from 'podcast';
 import moment from 'moment';
-import { ProgrammaInfo } from 'RaiPlaySound';
-import { urlResolver } from './api';
+import { ProgrammaInfo, Audio, DownloadableAudio } from 'RaiPlaySound';
 
-export function newProgrammaFeed(programmaInfo: ProgrammaInfo, options?: { feedUrl?: string }) {
+const baseUrl = 'https://www.raiplaysound.it';
+
+export interface Options {
+    feedUrl?: string;
+}
+
+export async function generateProgrammaFeed(name: string, options?: Options): Promise<string> {
+    const programmaInfo = await fetchProgramma(name);
+    const feed = toFeed(programmaInfo, options);
+    return feed.buildXml();
+}
+
+async function fetchProgramma(name: string) {
+    const response = await fetch(new URL(`/programmi/${name}.json`, baseUrl));
+    return response.json() as Promise<ProgrammaInfo>;
+}
+
+function toFeed(programmaInfo: ProgrammaInfo, options?: Options) {
     const feed = new Podcast({
         namespaces: {
             iTunes: true,
@@ -12,9 +29,9 @@ export function newProgrammaFeed(programmaInfo: ProgrammaInfo, options?: { feedU
         },
         title: programmaInfo.podcast_info.title,
         description: programmaInfo.podcast_info.description,
-        siteUrl: urlResolver.link(programmaInfo.podcast_info.weblink, options?.feedUrl),
+        siteUrl: weblink(programmaInfo.podcast_info),
         language: "it-it",
-        imageUrl: urlResolver.image(programmaInfo.podcast_info.image, options?.feedUrl),
+        imageUrl: image(programmaInfo.podcast_info),
         copyright: "Rai - Radiotelevisione Italiana Spa",
         pubDate: moment(programmaInfo.block.update_date, "DD-MM-YYYY hh:mm:ss").toDate(),
         generator: "RaiPlay Sound",
@@ -32,13 +49,13 @@ export function newProgrammaFeed(programmaInfo: ProgrammaInfo, options?: { feedU
     programmaInfo.block.cards.forEach(post => {
         feed.addItem({
             title: post.episode_title,
-            url: urlResolver.link(post.weblink, options?.feedUrl),
+            url: weblink(post, programmaInfo.podcast_info),
             guid: post.uniquename,
             description: post.description,
             date: moment(post.literal_publication_date, "DD MMM YYYY", "it").toDate() || moment(post.create_date, "DD-MM-YYYY").toDate(),
-            imageUrl: urlResolver.image(post.image, options?.feedUrl),
+            imageUrl: image(post, programmaInfo.podcast_info),
             enclosure: {
-                url: urlResolver.audio((post.downloadable_audio || post.audio).url, options?.feedUrl),
+                url: audio(post),
                 type: 'audio/mpeg'
             },
             itunesAuthor: "RaiPlay Sound",
@@ -47,6 +64,7 @@ export function newProgrammaFeed(programmaInfo: ProgrammaInfo, options?: { feedU
             itunesDuration: post.audio?.duration
         });
     });
+
     for (const i in feed.feed.customElements) {
         const element = feed.feed.customElements[i] as { "itunes:explicit": string };
         if (element['itunes:explicit'] === undefined)
@@ -64,5 +82,19 @@ export function newProgrammaFeed(programmaInfo: ProgrammaInfo, options?: { feedU
             element['itunes:explicit'] = "no";
         }
     }
-    return feed.buildXml();
+    return feed;
+}
+
+function weblink(...args: { weblink: string; }[]) {
+    const url = args.find(x => x != null && x.weblink != null)?.weblink;
+    return url ? new URL(url, baseUrl).href : undefined;
+}
+function image(...args: { image: string; }[]) {
+    const url = args.find(x => x != null && x.image != null)?.image;
+    return url ? new URL(url, baseUrl).href : undefined;
+}
+function audio({ audio, downloadable_audio }: { audio: Audio, downloadable_audio: DownloadableAudio }) {
+    const url = new URL((downloadable_audio || audio).url);
+    url.pathname = url.pathname.replace('.htm', '.mp3');
+    return url.href;
 }
