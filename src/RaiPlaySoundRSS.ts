@@ -39,10 +39,9 @@ function toFeed(programmaInfo: ProgrammaInfo, options?: Options) {
             name: "RaiPlay Sound",
             email: "portaliradio@rai.it"
         },
-        categories: programmaInfo.podcast_info.genres.map((genre) => genre.name),
-        itunesAuthor: "RaiPlay Sound",
-        itunesSummary: programmaInfo.podcast_info.description,
-        itunesCategory: [{ text: 'Society & Culture' }],
+        itunesAuthor: "Rai Radio 3",
+        itunesSubtitle: programmaInfo.podcast_info.description,
+        itunesCategory: [{ text: 'Science &amp; Medicine' }],
         feedUrl: options?.feedUrl
     });
 
