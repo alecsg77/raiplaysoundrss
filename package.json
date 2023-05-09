@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "build-ts": "tsc",
+    "build-ts": "esbuild --bundle src/server.ts --outdir=dist --minify --sourcemap --platform=node",
     "build": "npm run lint && npm run build-ts",
     "lint": "eslint ./src/ --ext .ts",
     "start": "npm run build && node dist/server.js",
@@ -33,6 +33,7 @@
     "@types/xml-escape": "^1.1.0",
     "@typescript-eslint/eslint-plugin": "^5.14.0",
     "@typescript-eslint/parser": "^5.14.0",
+    "esbuild": "^0.17.18",
     "eslint": "^8.11.0",
     "nodemon": "^2.0.15",
     "typescript": "^4.6.2"

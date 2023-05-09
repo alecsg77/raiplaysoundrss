@@ -14,8 +14,6 @@ RUN apk add --no-cache tini
 WORKDIR /usr/src/app
 RUN chown node:node .
 USER node
-COPY package.json ./
-RUN npm install
 COPY --from=builder /usr/src/app/dist/ dist/
 EXPOSE 3000
 ENTRYPOINT [ "/sbin/tini","--", "node", "dist/server.js" ]
