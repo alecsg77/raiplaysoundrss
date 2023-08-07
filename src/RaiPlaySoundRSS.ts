@@ -9,14 +9,24 @@ export interface Options {
     feedUrl?: string;
 }
 
-export async function generateProgrammaFeed(name: string, options?: Options): Promise<string> {
+export async function generateProgrammaFeed(name: { [key: string]: string }, options?: Options): Promise<string> {
     const programmaInfo = await fetchProgramma(name);
     const feed = toFeed(programmaInfo, options);
     return feed.buildXml();
 }
 
-async function fetchProgramma(name: string) {
-    const response = await fetch(new URL(`/programmi/${name}.json`, baseUrl));
+async function fetchProgramma(name: { [key: string]: string }) {
+    const servizio = name.servizio;
+    const programma = name.programma || null;
+    let url = new URL(`/${servizio}/${programma}.json`, baseUrl)
+    if (programma === null) {
+        url = new URL(`/programmi/${servizio}.json`, baseUrl);
+    }
+    let response = await fetch(url);
+    if (!response.ok) {
+        url = new URL(`/audiolibri/${servizio}.json`, baseUrl);
+    }
+    response = await fetch(url);
     return response.json() as Promise<ProgrammaInfo>;
 }
 
