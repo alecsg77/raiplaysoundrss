@@ -10,7 +10,11 @@ export default (debugMode?: boolean): RequestHandler<{ programma: string; }> => 
         const protocol = firstValue(req.headers['x-forwarded-proto']) || req.protocol || 'http';
         let host = firstValue(req.headers['x-forwarded-host']) || hostHeaderValue.replace(/:[0-9]+/, '');
         let port = firstValue(req.headers['x-forwarded-port']) || req.app.settings.port || (hostHeaderValue.match(/:([0-9]+)/) || [])[1] || '';
-        const resource = (req.url === '/') ? '' : req.url;
+
+        const url = req.url; // Ottieni l'URL completo richiesto dal client
+        const urlSegments = url.split('/'); // Dividi l'URL in segmenti
+        const lastSegment = "/" + urlSegments[urlSegments.length - 1];
+        const resource = lastSegment;
 
         // clear default ports
         port = (protocol === 'https' && port === '443') ? '' : port;

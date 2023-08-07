@@ -10,17 +10,17 @@ const port = 3000
 
 app.use(compression());
 app.use(httpLogger);
-app.use(publicUrl());
+ app.use(publicUrl());
 
-app.get('/:programma', cache('1 minute'), async (req, res, next) => {
+app.get('/:servizio/:programma?', cache('1 minute'), async (req, res, next) => {
   try {
     const contentType = req.accepts(['text/xml', 'application/xml', 'application/rss+xml']);
-    if (contentType === false) {
-      res.status(406).end();
-      return;
-    }
+   if (contentType === false) {
+     res.status(406).end();
+     return;
+   }
     res.set('Content-Type', contentType);
-    const feed = await generateProgrammaFeed(req.params.programma, { feedUrl: req.publicUrl });
+    const feed = await generateProgrammaFeed(req.params, { feedUrl: req.publicUrl });
     res.send(feed);
   } catch (error) {
     next(error);
