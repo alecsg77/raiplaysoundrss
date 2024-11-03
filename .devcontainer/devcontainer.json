@@ -1,17 +1,24 @@
 {
 	"name": "RaiPlaySoundRSS",
-	"image": "node:17-bullseye",
-
-	"settings": {},
-	"extensions": [
-		"dbaeumer.vscode-eslint",
-		"ms-azuretools.vscode-docker"
+	"image": "node:20-bullseye",
+	"customizations": {
+		"vscode": {
+			"settings": {},
+			"extensions": [
+				"dbaeumer.vscode-eslint",
+				"ms-azuretools.vscode-docker"
+			]
+		}
+	},
+	"forwardPorts": [
+		3000
 	],
-	"forwardPorts": [3000],
-	"mounts": [ "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind" ],
+	"mounts": [
+		"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+	],
 	"remoteUser": "node",
 	"features": {
-		"common":  {
+		"common": {
 			"username": "node",
 			"uid": "automatic",
 			"gid": "automatic",
