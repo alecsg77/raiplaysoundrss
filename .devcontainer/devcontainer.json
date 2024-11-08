@@ -18,7 +18,7 @@
 	],
 	"remoteUser": "node",
 	"features": {
-		"common": {
+		"ghcr.io/devcontainers/features/common-utils:2": {
 			"username": "node",
 			"uid": "automatic",
 			"gid": "automatic",
@@ -27,7 +27,7 @@
 			"upgradePackages": true,
 			"nonFreePackages": false
 		},
-		"docker-from-docker": {
+		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
 			"version": "latest",
 			"moby": true
 		}
