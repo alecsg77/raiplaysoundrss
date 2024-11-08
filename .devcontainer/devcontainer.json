@@ -19,13 +19,7 @@
 	"remoteUser": "node",
 	"features": {
 		"ghcr.io/devcontainers/features/common-utils:2": {
-			"username": "node",
-			"uid": "automatic",
-			"gid": "automatic",
-			"installZsh": true,
-			"installOhMyZsh": true,
-			"upgradePackages": true,
-			"nonFreePackages": false
+			"username": "node"
 		},
 		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
 			"version": "latest",
