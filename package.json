@@ -5,7 +5,7 @@
   "scripts": {
     "build-ts": "esbuild --bundle src/server.ts --outdir=dist --minify --sourcemap --platform=node",
     "build": "npm run lint && npm run build-ts",
-    "lint": "eslint ./src/ --ext .ts",
+    "lint": "eslint ./src/",
     "start": "npm run build && node dist/server.js",
     "watch": "nodemon -L"
   },
@@ -25,6 +25,8 @@
     "podcast": "^2.0.1"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.1.0",
+    "@eslint/js": "^9.14.0",
     "@types/apicache": "^1.6.6",
     "@types/compression": "^1.7.5",
     "@types/express": "^4.17.21",
