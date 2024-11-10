@@ -4,7 +4,7 @@ FROM base AS builder
 WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm ci
-COPY tsconfig.json .eslintrc .eslintignore ./
+COPY tsconfig.json .eslint.config.mjs ./
 COPY src src
 RUN npm run build
 
