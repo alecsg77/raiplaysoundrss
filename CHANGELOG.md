@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.2](https://github.com/alecsg77/raiplaysoundrss/compare/v0.7.1...v0.7.2) (2025-02-22)
+
+
+### Features
+
+* use git flow branch model ([7554835](https://github.com/alecsg77/raiplaysoundrss/commit/755483555426777e516515823c03200ec7e3801a))
+
 ## [0.7.1](https://github.com/alecsg77/raiplaysoundrss/compare/v0.7.0...v0.7.1) (2025-02-22)
 
 
