@@ -1,6 +1,6 @@
 {
   "name": "raiplaysoundrss",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "main": "server.js",
   "scripts": {
     "build-ts": "esbuild --bundle src/server.ts --outdir=dist --minify --sourcemap --platform=node",
