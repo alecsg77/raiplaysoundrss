@@ -9,6 +9,6 @@ updates:
   - package-ecosystem: "devcontainers"
     directory: "/"
     schedule:
-      interval: weekly
+      interval: "weekly"
     commit-message:
       prefix: "ci"
