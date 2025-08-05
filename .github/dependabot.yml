@@ -13,7 +13,7 @@ updates:
     commit-message:
       prefix: "ci"
   - package-ecosystem: "github-actions"
-    directory: ".github"
+    directory: "/"
     schedule:
       interval: weekly
     commit-message:
