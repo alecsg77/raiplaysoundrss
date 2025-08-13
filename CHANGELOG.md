@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.3](https://github.com/alecsg77/raiplaysoundrss/compare/v0.7.2...v0.7.3) (2025-08-13)
+
+
+### Bug Fixes
+
+* **deps:** bump @types/node from 20.17.6 to 24.2.1 ([#42](https://github.com/alecsg77/raiplaysoundrss/issues/42)) ([8c43ba2](https://github.com/alecsg77/raiplaysoundrss/commit/8c43ba20df2bb8c3346ba86eb13be1b6337810a7))
+
 ## [0.7.2](https://github.com/alecsg77/raiplaysoundrss/compare/v0.7.1...v0.7.2) (2025-08-05)
 
 
