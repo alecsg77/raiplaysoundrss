@@ -1,6 +1,6 @@
 {
 	"name": "RaiPlaySoundRSS",
-	"image": "node:20-bullseye",
+	"image": "node:24-bullseye",
 	"customizations": {
 		"vscode": {
 			"settings": {},
