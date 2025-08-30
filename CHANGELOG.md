@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.7.3](https://github.com/alecsg77/raiplaysoundrss/compare/v0.7.2...v0.7.3) (2025-08-30)
+
+
+### Bug Fixes
+
+* **deps:** bump @types/node from 20.17.6 to 24.2.1 ([#42](https://github.com/alecsg77/raiplaysoundrss/issues/42)) ([8c43ba2](https://github.com/alecsg77/raiplaysoundrss/commit/8c43ba20df2bb8c3346ba86eb13be1b6337810a7))
+* **deps:** bump @typescript-eslint/parser from 8.39.0 to 8.41.0 ([#47](https://github.com/alecsg77/raiplaysoundrss/issues/47)) ([679be2f](https://github.com/alecsg77/raiplaysoundrss/commit/679be2f27ff81bc89cb148a96a27dbd4aa43e833))
+* **deps:** bump express and @types/express ([#39](https://github.com/alecsg77/raiplaysoundrss/issues/39)) ([17a0a13](https://github.com/alecsg77/raiplaysoundrss/commit/17a0a1390d95aa7d56b1c01329391ef0baa5ae35))
+* **deps:** bump node from 20-alpine to 24-alpine ([#33](https://github.com/alecsg77/raiplaysoundrss/issues/33)) ([240ca29](https://github.com/alecsg77/raiplaysoundrss/commit/240ca2900faa30f8b49ab54eb8c778ebc86f16e6))
+* **deps:** bump nodemon from 3.1.7 to 3.1.10 ([#37](https://github.com/alecsg77/raiplaysoundrss/issues/37)) ([8e25b66](https://github.com/alecsg77/raiplaysoundrss/commit/8e25b66a8018a63653e3c6f5bc9a18cc80430525))
+* **deps:** bump pino-pretty from 11.3.0 to 13.1.1 ([#44](https://github.com/alecsg77/raiplaysoundrss/issues/44)) ([0408a00](https://github.com/alecsg77/raiplaysoundrss/commit/0408a00dbc858e2aeded8a5a081d7d5944fb9def))
+* **deps:** bump typescript from 5.6.3 to 5.9.2 ([#32](https://github.com/alecsg77/raiplaysoundrss/issues/32)) ([e1a4dc1](https://github.com/alecsg77/raiplaysoundrss/commit/e1a4dc1e3bed113166382c5837d920b4fdb823ea))
+
 ## [0.7.2](https://github.com/alecsg77/raiplaysoundrss/compare/v0.7.1...v0.7.2) (2025-08-05)
 
 
