@@ -4,6 +4,9 @@ import { ProgrammaInfo, Audio, DownloadableAudio } from 'RaiPlaySound';
 
 const baseUrl = 'https://www.raiplaysound.it';
 
+// Regex pattern for valid parameter names (alphanumeric and hyphens only)
+const VALID_PARAM_PATTERN = /^[a-z0-9-]+$/i;
+
 export interface Options {
     feedUrl?: string;
 }
@@ -19,10 +22,10 @@ async function fetchProgramma(name: { [key: string]: string }) {
     const programma = name.programma;
     
     // Validate input parameters to prevent SSRF attacks
-    if (servizio && !/^[a-z0-9-]+$/i.test(servizio)) {
+    if (servizio && !VALID_PARAM_PATTERN.test(servizio)) {
         throw new Error('Invalid servizio parameter. Only alphanumeric characters and hyphens allowed.');
     }
-    if (programma && !/^[a-z0-9-]+$/i.test(programma)) {
+    if (programma && !VALID_PARAM_PATTERN.test(programma)) {
         throw new Error('Invalid programma parameter. Only alphanumeric characters and hyphens allowed.');
     }
     
