@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import compression from 'compression';
 import { middleware as cache } from 'apicache';
 import { httpLogger } from './logger';
@@ -12,7 +12,7 @@ app.use(compression());
 app.use(httpLogger);
  app.use(publicUrl());
 
-app.get('/:servizio/:programma?', cache('1 minute'), async (req, res, next) => {
+const handler = cache('1 minute')(async (req: Request, res: Response, next: NextFunction) => {
   try {
     const contentType = req.accepts(['text/xml', 'application/xml', 'application/rss+xml']);
    if (contentType === false) {
@@ -25,7 +25,10 @@ app.get('/:servizio/:programma?', cache('1 minute'), async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-})
+});
+
+app.get('/:servizio/:programma', handler);
+app.get('/:programma', handler);
 
 app.listen(port, () => {
   console.log(`Listening on port ${port}`)

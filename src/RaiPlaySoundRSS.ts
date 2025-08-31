@@ -17,16 +17,32 @@ export async function generateProgrammaFeed(name: { [key: string]: string }, opt
 
 async function fetchProgramma(name: { [key: string]: string }) {
     const servizio = name.servizio;
-    const programma = name.programma || null;
-    let url = new URL(`/${servizio}/${programma}.json`, baseUrl)
-    if (programma === null) {
-        url = new URL(`/programmi/${servizio}.json`, baseUrl);
+    const programma = name.programma;
+    
+    let url: URL;
+    
+    if (servizio && programma) {
+        // Double parameter case: /:servizio/:programma -> /{servizio}/{programma}.json
+        url = new URL(`/${servizio}/${programma}.json`, baseUrl);
+    } else if (programma) {
+        // Single parameter case: /:programma (servizio defaults to "programmi") -> /programmi/{programma}.json
+        url = new URL(`/programmi/${programma}.json`, baseUrl);
+    } else {
+        throw new Error('No program name provided');
     }
+    
     let response = await fetch(url);
     if (!response.ok) {
-        url = new URL(`/audiolibri/${servizio}.json`, baseUrl);
+        // Fallback to audiolibri only for single parameter case
+        if (!servizio && programma) {
+            url = new URL(`/audiolibri/${programma}.json`, baseUrl);
+            response = await fetch(url);
+        }
     }
-    response = await fetch(url);
+    
+    if (!response.ok) {
+        throw new Error(`Failed to fetch program data for ${servizio ? `${servizio}/` : ''}${programma || 'unknown'}`);
+    }
     return response.json() as Promise<ProgrammaInfo>;
 }
 
