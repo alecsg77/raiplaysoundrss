@@ -1,9 +1,11 @@
-import fetch from 'node-fetch';
 import { Podcast } from 'podcast';
 import moment from 'moment';
 import { ProgrammaInfo, Audio, DownloadableAudio } from 'RaiPlaySound';
 
 const baseUrl = 'https://www.raiplaysound.it';
+
+// Regex pattern for valid parameter names (alphanumeric and hyphens only)
+const VALID_PARAM_PATTERN = /^[a-z0-9-]+$/i;
 
 export interface Options {
     feedUrl?: string;
@@ -17,16 +19,40 @@ export async function generateProgrammaFeed(name: { [key: string]: string }, opt
 
 async function fetchProgramma(name: { [key: string]: string }) {
     const servizio = name.servizio;
-    const programma = name.programma || null;
-    let url = new URL(`/${servizio}/${programma}.json`, baseUrl)
-    if (programma === null) {
-        url = new URL(`/programmi/${servizio}.json`, baseUrl);
+    const programma = name.programma;
+    
+    // Validate input parameters to prevent SSRF attacks
+    if (servizio && !VALID_PARAM_PATTERN.test(servizio)) {
+        throw new Error('Invalid servizio parameter. Only alphanumeric characters and hyphens allowed.');
     }
+    if (programma && !VALID_PARAM_PATTERN.test(programma)) {
+        throw new Error('Invalid programma parameter. Only alphanumeric characters and hyphens allowed.');
+    }
+    
+    let url: URL;
+    
+    if (servizio && programma) {
+        // Double parameter case: /:servizio/:programma -> /{servizio}/{programma}.json
+        url = new URL(`/${servizio}/${programma}.json`, baseUrl);
+    } else if (programma) {
+        // Single parameter case: /:programma (servizio defaults to "programmi") -> /programmi/{programma}.json
+        url = new URL(`/programmi/${programma}.json`, baseUrl);
+    } else {
+        throw new Error('Program name is required. Expected either programma or both servizio and programma parameters.');
+    }
+    
     let response = await fetch(url);
     if (!response.ok) {
-        url = new URL(`/audiolibri/${servizio}.json`, baseUrl);
+        // Fallback to audiolibri only for single parameter case
+        if (!servizio && programma) {
+            url = new URL(`/audiolibri/${programma}.json`, baseUrl);
+            response = await fetch(url);
+        }
     }
-    response = await fetch(url);
+    
+    if (!response.ok) {
+        throw new Error(`Failed to fetch program data for ${servizio ? `${servizio}/` : ''}${programma || 'unknown'}`);
+    }
     return response.json() as Promise<ProgrammaInfo>;
 }
 
