@@ -1,15 +1,22 @@
 // Mock global fetch
 const mockFetch = jest.fn();
-global.fetch = mockFetch as any;
+let originalFetch: typeof global.fetch;
 
 import { generateProgrammaFeed } from '../src/RaiPlaySoundRSS';
 import { mockProgrammaInfo, mockAudiolibroInfo } from './fixtures';
 
 describe('RaiPlaySoundRSS', () => {
   beforeEach(() => {
+    // Save and mock global.fetch before each test
+    originalFetch = global.fetch;
+    global.fetch = mockFetch as any;
     mockFetch.mockClear();
   });
 
+  afterEach(() => {
+    // Restore original global.fetch after each test
+    global.fetch = originalFetch;
+  });
   describe('generateProgrammaFeed', () => {
     it('should generate RSS feed for programma', async () => {
       // Mock API response - need to mock all the calls in sequence
