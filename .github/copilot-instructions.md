@@ -4,7 +4,7 @@
 A TypeScript Express.js service that converts RaiPlaySound podcast metadata into RSS feeds. Single-purpose microservice with minimal dependencies.
 
 ## Architecture
-- **Entry point**: `src/server.ts` - Express app with single route `/:servizio/:programma?`
+- **Entry point**: `src/server.ts` - Express app with routes for `/:servizio/:programma` and `/:servizio`
 - **Core logic**: `src/RaiPlaySoundRSS.ts` - Fetches JSON from RaiPlaySound API and converts to RSS using `podcast` library
 - **API pattern**: Tries multiple URL patterns (`/programmi/`, `/audiolibri/`) when initial fetch fails
 - **Caching**: 1-minute HTTP response cache via `apicache` middleware
@@ -20,12 +20,23 @@ A TypeScript Express.js service that converts RaiPlaySound podcast metadata into
 npm run watch        # Development with nodemon
 npm run build        # Lint + esbuild bundle 
 npm run start        # Build + run production
+npm test            # Run test suite
+npm run test:watch  # Run tests in watch mode
+npm run test:coverage # Run tests with coverage report
 ```
+
+## Testing Strategy
+- **Unit tests**: Mock-based testing for RSS generation logic
+- **Integration tests**: Supertest for HTTP endpoint behavior
+- **Middleware tests**: Comprehensive coverage of `publicUrl` middleware
+- **Mock data**: `test/fixtures.ts` contains complete RaiPlaySound API response structures
+- **Jest config**: TypeScript support with node environment
 
 ## TypeScript Patterns
 - **Type definitions**: `src/RaiPlaySound.d.ts` contains extensive API response types
 - **URL construction**: Helper functions `weblink()`, `image()`, `audio()` handle RaiPlaySound URL patterns
 - **Express extensions**: Custom middleware in `src/publicUrl.ts` adds `req.publicUrl` property
+- **Express 5 compatibility**: Uses separate routes for optional parameters due to path-to-regexp changes
 
 ## External Dependencies
 - **RaiPlaySound API**: `https://www.raiplaysound.it/{category}/{id}.json`
