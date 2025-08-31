@@ -1,12 +1,9 @@
-// Mock node-fetch
+// Mock global fetch
 const mockFetch = jest.fn();
-jest.mock('node-fetch', () => mockFetch);
+global.fetch = mockFetch as any;
 
 import { generateProgrammaFeed } from '../src/RaiPlaySoundRSS';
 import { mockProgrammaInfo, mockAudiolibroInfo } from './fixtures';
-
-// Mock fetch globally
-global.fetch = mockFetch as any;
 
 describe('RaiPlaySoundRSS Unit Tests', () => {
   beforeEach(() => {

@@ -1,12 +1,9 @@
-// Mock node-fetch
+// Mock global fetch
 const mockFetch = jest.fn();
-jest.mock('node-fetch', () => mockFetch);
+global.fetch = mockFetch as any;
 
 import { generateProgrammaFeed } from '../src/RaiPlaySoundRSS';
 import { mockProgrammaInfo, mockAudiolibroInfo } from './fixtures';
-
-// Mock fetch globally
-global.fetch = mockFetch as any;
 
 describe('RaiPlaySoundRSS', () => {
   beforeEach(() => {
@@ -204,6 +201,30 @@ describe('RaiPlaySoundRSS', () => {
       await expect(generateProgrammaFeed({ 
         programma: 'test-podcast' 
       })).rejects.toThrow();
+    });
+
+    it('should validate input parameters to prevent SSRF attacks', async () => {
+      // Test invalid servizio parameter
+      await expect(generateProgrammaFeed({ 
+        servizio: '../../../etc/passwd',
+        programma: 'test'
+      })).rejects.toThrow('Invalid servizio parameter');
+
+      // Test invalid programma parameter
+      await expect(generateProgrammaFeed({ 
+        programma: 'test/../../../etc/passwd'
+      })).rejects.toThrow('Invalid programma parameter');
+
+      // Test valid parameters should not throw validation errors
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: jest.fn().mockResolvedValue(mockProgrammaInfo)
+      } as any);
+
+      await expect(generateProgrammaFeed({ 
+        programma: 'valid-program-name'
+      })).resolves.toBeDefined();
     });
   });
 });

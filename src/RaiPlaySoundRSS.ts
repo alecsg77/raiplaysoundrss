@@ -1,4 +1,3 @@
-import fetch from 'node-fetch';
 import { Podcast } from 'podcast';
 import moment from 'moment';
 import { ProgrammaInfo, Audio, DownloadableAudio } from 'RaiPlaySound';
@@ -19,6 +18,14 @@ async function fetchProgramma(name: { [key: string]: string }) {
     const servizio = name.servizio;
     const programma = name.programma;
     
+    // Validate input parameters to prevent SSRF attacks
+    if (servizio && !/^[a-z0-9-]+$/i.test(servizio)) {
+        throw new Error('Invalid servizio parameter. Only alphanumeric characters and hyphens allowed.');
+    }
+    if (programma && !/^[a-z0-9-]+$/i.test(programma)) {
+        throw new Error('Invalid programma parameter. Only alphanumeric characters and hyphens allowed.');
+    }
+    
     let url: URL;
     
     if (servizio && programma) {
@@ -28,7 +35,7 @@ async function fetchProgramma(name: { [key: string]: string }) {
         // Single parameter case: /:programma (servizio defaults to "programmi") -> /programmi/{programma}.json
         url = new URL(`/programmi/${programma}.json`, baseUrl);
     } else {
-        throw new Error('No program name provided');
+        throw new Error('Program name is required. Expected either programma or both servizio and programma parameters.');
     }
     
     let response = await fetch(url);
