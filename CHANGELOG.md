@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.4](https://github.com/alecsg77/raiplaysoundrss/compare/v0.7.3...v0.7.4) (2025-08-31)
+
+
+### Features
+
+* Copilot tests ([#51](https://github.com/alecsg77/raiplaysoundrss/issues/51)) ([56a9b55](https://github.com/alecsg77/raiplaysoundrss/commit/56a9b55519fb8c26158cd09c15f953cf20cf2cb6))
+
 ## [0.7.3](https://github.com/alecsg77/raiplaysoundrss/compare/v0.7.2...v0.7.3) (2025-08-30)
 
 
