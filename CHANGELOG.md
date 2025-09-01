@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.5](https://github.com/alecsg77/raiplaysoundrss/compare/v0.7.4...v0.7.5) (2025-09-01)
+
+
+### Bug Fixes
+
+* Fix apicache middleware usage causing TypeError on server startup with Express 5 ([#53](https://github.com/alecsg77/raiplaysoundrss/issues/53)) ([59224ab](https://github.com/alecsg77/raiplaysoundrss/commit/59224ab18d20d4b273f3ed22738eee47af9c3325))
+
 ## [0.7.4](https://github.com/alecsg77/raiplaysoundrss/compare/v0.7.3...v0.7.4) (2025-08-31)
 
 
