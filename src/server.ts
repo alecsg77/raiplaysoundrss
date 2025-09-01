@@ -12,7 +12,7 @@ app.use(compression());
 app.use(httpLogger);
  app.use(publicUrl());
 
-const handler = cache('1 minute')(async (req: Request, res: Response, next: NextFunction) => {
+const handler = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const contentType = req.accepts(['text/xml', 'application/xml', 'application/rss+xml']);
    if (contentType === false) {
@@ -25,10 +25,10 @@ const handler = cache('1 minute')(async (req: Request, res: Response, next: Next
   } catch (error) {
     next(error);
   }
-});
+};
 
-app.get('/:servizio/:programma', handler);
-app.get('/:programma', handler);
+app.get('/:servizio/:programma', cache('1 minute'), handler);
+app.get('/:programma', cache('1 minute'), handler);
 
 app.listen(port, () => {
   console.log(`Listening on port ${port}`)
