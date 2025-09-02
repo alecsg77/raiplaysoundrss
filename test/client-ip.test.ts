@@ -6,17 +6,15 @@ describe('Client IP Extraction', () => {
 
   beforeEach(async () => {
     app = await buildApp({ logger: false });
+    
+    // Register test route once per app instance to avoid conflicts
+    await app.get('/test-ip', async (request: FastifyRequest, reply) => {
+      return { clientIp: request.clientIp };
+    });
   });
 
   afterEach(async () => {
     await app.close();
-  });
-
-  // Create a simple test route to check clientIp
-  beforeEach(async () => {
-    await app.get('/test-ip', async (request: FastifyRequest, reply) => {
-      return { clientIp: request.clientIp };
-    });
   });
 
   describe('Client IP detection with trustProxy', () => {

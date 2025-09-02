@@ -12,6 +12,10 @@ export async function buildApp(opts = {}): Promise<FastifyInstance> {
 
   // Register plugins
   await app.register(compress);
+  
+  // Cache configuration matching original Express setup (1-minute TTL)
+  // 'private' = per-client caching (not shared between clients)
+  // expiresIn = 60 seconds, same as apicache('1 minute') in Express version
   await app.register(fastifyCaching, { 
     privacy: 'private',
     expiresIn: 60 // 60 seconds = 1 minute
