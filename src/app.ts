@@ -28,10 +28,10 @@ export async function buildApp(opts = {}): Promise<FastifyInstance> {
     const publicUrl = `${request.protocol}://${request.host}${request.url}`;
     const urlBase = `${request.protocol}://${request.host}`;
     
-    // Add to request object with proper typing
-    (request as FastifyRequest & { publicUrl: string; urlBase: string; clientIp: string }).publicUrl = publicUrl;
-    (request as FastifyRequest & { publicUrl: string; urlBase: string; clientIp: string }).urlBase = urlBase;
-    (request as FastifyRequest & { publicUrl: string; urlBase: string; clientIp: string }).clientIp = request.ip;
+    // Add to request object using declaration merging types
+    request.publicUrl = publicUrl;
+    request.urlBase = urlBase;
+    request.clientIp = request.ip;
   });
 
   // Route handler
@@ -56,7 +56,7 @@ export async function buildApp(opts = {}): Promise<FastifyInstance> {
       reply.header('Cache-Control', 'private, max-age=60');
       
       const feed = await generateProgrammaFeed(request.params, { 
-        feedUrl: request.publicUrl || ''
+        feedUrl: request.publicUrl
       });
       
       reply.send(feed);

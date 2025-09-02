@@ -1,4 +1,4 @@
-import { FastifyInstance } from 'fastify';
+import { FastifyInstance, FastifyRequest } from 'fastify';
 import { buildApp } from '../src/app';
 
 describe('Client IP Extraction', () => {
@@ -14,7 +14,7 @@ describe('Client IP Extraction', () => {
 
   // Create a simple test route to check clientIp
   beforeEach(async () => {
-    await app.get('/test-ip', async (request: any, reply) => {
+    await app.get('/test-ip', async (request: FastifyRequest, reply) => {
       return { clientIp: request.clientIp };
     });
   });
