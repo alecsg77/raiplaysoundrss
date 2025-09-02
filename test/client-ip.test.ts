@@ -1,16 +1,20 @@
 import { FastifyInstance, FastifyRequest } from 'fastify';
 import { buildApp } from '../src/app';
 
+// Helper to build a Fastify app instance with the test route registered
+async function buildTestApp(): Promise<FastifyInstance> {
+  const app = await buildApp({ logger: false });
+  app.get('/test-ip', async (request: FastifyRequest, reply) => {
+    return { clientIp: request.clientIp };
+  });
+  return app;
+}
+
 describe('Client IP Extraction', () => {
   let app: FastifyInstance;
 
   beforeEach(async () => {
-    app = await buildApp({ logger: false });
-    
-    // Register test route once per app instance to avoid conflicts
-    await app.get('/test-ip', async (request: FastifyRequest, reply) => {
-      return { clientIp: request.clientIp };
-    });
+    app = await buildTestApp();
   });
 
   afterEach(async () => {

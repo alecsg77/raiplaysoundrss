@@ -1,13 +1,13 @@
-import Fastify, { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
+import Fastify, { FastifyInstance, FastifyRequest, FastifyReply, FastifyServerOptions } from 'fastify';
 import compress from '@fastify/compress';
 import fastifyCaching from '@fastify/caching';
 import { generateProgrammaFeed } from './RaiPlaySoundRSS';
 
-export async function buildApp(opts = {}): Promise<FastifyInstance> {
+export async function buildApp(opts: Partial<FastifyServerOptions> = {}): Promise<FastifyInstance> {
   const app = Fastify({
-    logger: true, // Simple logger configuration
     trustProxy: true, // Enable trust proxy for x-forwarded headers
-    ...opts
+    ...opts,
+    logger: opts.logger ?? true // Conditional logger configuration
   });
 
   // Register plugins
@@ -43,11 +43,15 @@ export async function buildApp(opts = {}): Promise<FastifyInstance> {
     Params: { servizio?: string; programma: string }
   }>, reply: FastifyReply) => {
     try {
-      // Check Accept header for supported content types
+      // Check Accept header for supported content types using proper parsing
       const acceptHeader = request.headers.accept || '';
       const supportedTypes = ['text/xml', 'application/xml', 'application/rss+xml'];
-      const acceptedType = supportedTypes.find(type => acceptHeader.includes(type)) || 
-                           (acceptHeader.includes('*/*') ? 'application/rss+xml' : null);
+      
+      // Split Accept header by comma and check each media type
+      const acceptedTypes = acceptHeader.split(',').map(type => type.trim().toLowerCase());
+      const acceptedType = supportedTypes.find(type => 
+        acceptedTypes.some(accepted => accepted.startsWith(type))
+      ) || (acceptedTypes.some(accepted => accepted.startsWith('*/*')) ? 'application/rss+xml' : null);
       
       if (!acceptedType) {
         reply.code(406).send();
