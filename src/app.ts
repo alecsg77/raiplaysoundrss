@@ -3,6 +3,19 @@ import compress from '@fastify/compress';
 import fastifyCaching from '@fastify/caching';
 import { generateProgrammaFeed } from './RaiPlaySoundRSS';
 
+// Content negotiation utility function
+function parseAcceptHeader(acceptHeader: string): string | null {
+  const supportedTypes = ['text/xml', 'application/xml', 'application/rss+xml'];
+  
+  // Split Accept header by comma and check each media type
+  const acceptedTypes = acceptHeader.split(',').map(type => type.trim().toLowerCase());
+  const acceptedType = supportedTypes.find(type => 
+    acceptedTypes.some(accepted => accepted.startsWith(type))
+  ) || (acceptedTypes.some(accepted => accepted.startsWith('*/*')) ? 'application/rss+xml' : null);
+  
+  return acceptedType;
+}
+
 export async function buildApp(opts: Partial<FastifyServerOptions> = {}): Promise<FastifyInstance> {
   const app = Fastify({
     trustProxy: true, // Enable trust proxy for x-forwarded headers
@@ -14,7 +27,7 @@ export async function buildApp(opts: Partial<FastifyServerOptions> = {}): Promis
   await app.register(compress);
   
   // Cache configuration matching original Express setup (1-minute TTL)
-  // 'private' = per-client caching (not shared between clients)
+  // privacy: 'private' = per-client caching (not shared between clients)
   // expiresIn = 60 seconds, same as apicache('1 minute') in Express version
   await app.register(fastifyCaching, { 
     privacy: 'private',
@@ -43,15 +56,8 @@ export async function buildApp(opts: Partial<FastifyServerOptions> = {}): Promis
     Params: { servizio?: string; programma: string }
   }>, reply: FastifyReply) => {
     try {
-      // Check Accept header for supported content types using proper parsing
-      const acceptHeader = request.headers.accept || '';
-      const supportedTypes = ['text/xml', 'application/xml', 'application/rss+xml'];
-      
-      // Split Accept header by comma and check each media type
-      const acceptedTypes = acceptHeader.split(',').map(type => type.trim().toLowerCase());
-      const acceptedType = supportedTypes.find(type => 
-        acceptedTypes.some(accepted => accepted.startsWith(type))
-      ) || (acceptedTypes.some(accepted => accepted.startsWith('*/*')) ? 'application/rss+xml' : null);
+      // Check Accept header for supported content types
+      const acceptedType = parseAcceptHeader(request.headers.accept || '');
       
       if (!acceptedType) {
         reply.code(406).send();
