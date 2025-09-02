@@ -9,9 +9,21 @@ function parseAcceptHeader(acceptHeader: string): string | null {
   
   // Split Accept header by comma and check each media type
   const acceptedTypes = acceptHeader.split(',').map(type => type.trim().toLowerCase());
-  const acceptedType = supportedTypes.find(type => 
-    acceptedTypes.some(accepted => accepted.startsWith(type))
-  ) || (acceptedTypes.some(accepted => accepted.startsWith('*/*')) ? 'application/rss+xml' : null);
+  
+  let acceptedType: string | null = null;
+  
+  // Check for supported types
+  for (const type of supportedTypes) {
+    if (acceptedTypes.some(accepted => accepted.startsWith(type))) {
+      acceptedType = type;
+      break;
+    }
+  }
+  
+  // If no supported type, check for wildcard
+  if (!acceptedType && acceptedTypes.some(accepted => accepted.startsWith('*/*'))) {
+    acceptedType = 'application/rss+xml';
+  }
   
   return acceptedType;
 }
