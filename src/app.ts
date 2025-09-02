@@ -76,10 +76,10 @@ export async function buildApp(opts: Partial<FastifyServerOptions> = {}): Promis
         return;
       }
       
-      reply.header('Content-Type', acceptedType);
+      // Set content type with charset for RSS/XML compatibility
+      reply.header('Content-Type', `${acceptedType}; charset=utf-8`);
       
-      // Set cache headers for @fastify/caching
-      reply.header('Cache-Control', 'private, max-age=60');
+      // Cache headers are set automatically by @fastify/caching plugin
       
       const feed = await generateProgrammaFeed(request.params, { 
         feedUrl: request.publicUrl

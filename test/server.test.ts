@@ -45,7 +45,7 @@ describe('Server Integration', () => {
       });
 
       expect(response.statusCode).toBe(200);
-      expect(response.headers['content-type']).toBe('application/rss+xml');
+      expect(response.headers['content-type']).toBe('application/rss+xml; charset=utf-8');
       expect(response.body).toBe(mockRssXml);
       expect(mockGenerateProgrammaFeed).toHaveBeenCalledWith(
         { programma: 'test-podcast' },
@@ -65,7 +65,7 @@ describe('Server Integration', () => {
       });
 
       expect(response.statusCode).toBe(200);
-      expect(response.headers['content-type']).toBe('text/xml');
+      expect(response.headers['content-type']).toBe('text/xml; charset=utf-8');
       expect(response.body).toBe(mockRssXml);
       expect(mockGenerateProgrammaFeed).toHaveBeenCalledWith(
         { servizio: 'test-service', programma: 'test-program' },
@@ -121,8 +121,10 @@ describe('Server Integration', () => {
         });
 
         expect(response.statusCode).toBe(200);
-        expect(['application/rss+xml', 'application/xml', 'text/xml'])
-          .toContain(response.headers['content-type']);
+        expect(
+          ['application/rss+xml; charset=utf-8', 'application/xml; charset=utf-8', 'text/xml; charset=utf-8']
+            .includes(response.headers['content-type'] || '')
+        ).toBe(true);
       }
     });
 
