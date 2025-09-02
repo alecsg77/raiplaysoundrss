@@ -20,14 +20,14 @@ export async function buildApp(opts: Partial<FastifyServerOptions> = {}): Promis
   const app = Fastify({
     trustProxy: true, // Enable trust proxy for x-forwarded headers
     ...opts,
-    logger: opts.logger ?? true // Conditional logger configuration
+    logger: opts.logger ?? true // Enable logging by default (for production); allows tests to disable logging by passing opts.logger: false
   });
 
   // Register plugins
   await app.register(compress);
   
   // Cache configuration matching original Express setup (1-minute TTL)
-  // privacy: 'private' = per-client caching (not shared between clients)
+  // privacy: 'private' sets Cache-Control: private (cacheable by browsers, not shared caches)
   // expiresIn = 60 seconds, same as apicache('1 minute') in Express version
   await app.register(fastifyCaching, { 
     privacy: 'private',
