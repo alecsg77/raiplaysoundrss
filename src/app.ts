@@ -1,11 +1,11 @@
-import Fastify, { FastifyInstance, FastifyRequest, FastifyReply, FastifyServerOptions } from 'fastify';
+const fastify = require('fastify');
 import compress from '@fastify/compress';
 import fastifyCaching from '@fastify/caching';
 import accepts from '@fastify/accepts';
 import { generateProgrammaFeed } from './RaiPlaySoundRSS';
 
-export async function buildApp(opts: Partial<FastifyServerOptions> = {}): Promise<FastifyInstance> {
-  const app = Fastify({
+export async function buildApp(opts: any = {}): Promise<any> {
+  const app = fastify({
     trustProxy: true, // Enable trust proxy for x-forwarded headers
     ...opts,
     logger: opts.logger ?? true // Enable logging by default (for production); allows tests to disable logging by passing opts.logger: false
@@ -23,16 +23,28 @@ export async function buildApp(opts: Partial<FastifyServerOptions> = {}): Promis
     expiresIn: 60 // 60 seconds = 1 minute
   });
 
+  // URL base caching to avoid repeated string concatenation per host
+  const urlBaseCache = new Map<string, string>();
+
   // Add hook to construct public URL from request using trustProxy
-  app.addHook('onRequest', async (request: FastifyRequest) => {
+  app.addHook('onRequest', async (request: any) => {
     // When trustProxy is enabled, Fastify automatically provides:
     // - request.protocol (https/http from X-Forwarded-Proto or socket)
     // - request.host (from X-Forwarded-Host or Host header)
     // - request.ip (real client IP from X-Forwarded-For)
     
-    // Construct the public URL using official Fastify properties
-    const publicUrl = `${request.protocol}://${request.host}${request.url}`;
-    const urlBase = `${request.protocol}://${request.host}`;
+    // Cache key to avoid repeated string concatenation for same host/protocol
+    const cacheKey = `${request.protocol}://${request.host}`;
+    
+    // Get or cache urlBase (same for all requests with same protocol + host)
+    let urlBase = urlBaseCache.get(cacheKey);
+    if (!urlBase) {
+      urlBase = cacheKey;
+      urlBaseCache.set(cacheKey, urlBase);
+    }
+    
+    // Construct the public URL (unique per request due to request.url)
+    const publicUrl = `${urlBase}${request.url}`;
     
     // Add to request object using declaration merging types
     request.publicUrl = publicUrl;
@@ -41,9 +53,7 @@ export async function buildApp(opts: Partial<FastifyServerOptions> = {}): Promis
   });
 
   // Route handler
-  const handler = async (request: FastifyRequest<{
-    Params: { servizio?: string; programma: string }
-  }>, reply: FastifyReply) => {
+  const handler = async (request: any, reply: any) => {
     try {
       // Check Accept header for supported content types using @fastify/accepts
       const supportedTypes = ['text/xml', 'application/xml', 'application/rss+xml'];

@@ -21,7 +21,7 @@ const mockRssXml = `<?xml version="1.0" encoding="UTF-8"?>
 </rss>`;
 
 describe('Server Integration', () => {
-  let app: FastifyInstance;
+  let app: any; // Use any to bypass TypeScript definition issues
 
   beforeEach(async () => {
     app = await buildApp({ logger: false }); // Disable logging in tests

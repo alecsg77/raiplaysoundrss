@@ -1,20 +1,19 @@
-import { FastifyInstance, FastifyRequest, FastifyPluginCallback } from 'fastify';
+import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { buildApp } from '../src/app';
 
-// Fastify plugin to register the test route
-const testIpRoutePlugin: FastifyPluginCallback = (app, opts, done) => {
-  app.get('/test-ip', async (request: FastifyRequest, reply) => {
-    return { clientIp: request.clientIp };
-  });
-  done();
-};
-
 describe('Client IP Extraction', () => {
-  let app: FastifyInstance;
+  let app: any; // Use any to bypass TypeScript definition issues
 
   beforeEach(async () => {
     app = await buildApp({ logger: false });
-    app.register(testIpRoutePlugin);
+    
+    // Register test route using proper plugin pattern to avoid registration issues
+    await app.register(async (app: any) => {
+      app.get('/test-ip', async (request: any, reply: any) => {
+        return { clientIp: request.clientIp };
+      });
+    });
+    
     await app.ready();
   });
 

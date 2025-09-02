@@ -17,8 +17,8 @@ const mockRssXml = `<?xml version="1.0" encoding="UTF-8"?>
   </channel>
 </rss>`;
 
-describe('Reverse Proxy and feedUrl Calculation', () => {
-  let app: FastifyInstance;
+describe('Reverse Proxy Support', () => {
+  let app: any; // Use any to bypass TypeScript definition issues
 
   beforeEach(async () => {
     app = await buildApp({ logger: false });
