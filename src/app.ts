@@ -1,11 +1,11 @@
-const fastify = require('fastify');
+import fastify, { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import compress from '@fastify/compress';
 import fastifyCaching from '@fastify/caching';
 import accepts from '@fastify/accepts';
 import { generateProgrammaFeed } from './RaiPlaySoundRSS';
 
-export async function buildApp(opts: any = {}): Promise<any> {
-  const app = fastify({
+export async function buildApp(opts: any = {}): Promise<FastifyInstance> {
+  const app = (fastify as any)({
     trustProxy: true, // Enable trust proxy for x-forwarded headers
     ...opts,
     logger: opts.logger ?? true // Enable logging by default (for production); allows tests to disable logging by passing opts.logger: false
