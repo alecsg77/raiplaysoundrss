@@ -1,13 +1,15 @@
 # RaiPlaySoundRSS Copilot Instructions
 
 ## Project Overview
-A TypeScript Express.js service that converts RaiPlaySound podcast metadata into RSS feeds. Single-purpose microservice with minimal dependencies.
+A TypeScript Fastify service that converts RaiPlaySound podcast metadata into RSS feeds. Single-purpose microservice with minimal dependencies.
 
 ## Architecture
-- **Entry point**: `src/server.ts` - Express app with routes for `/:servizio/:programma` and `/:servizio`
+- **Entry point**: `src/server.ts` - Fastify app with routes for `/:servizio/:programma` and `/:servizio`
 - **Core logic**: `src/RaiPlaySoundRSS.ts` - Fetches JSON from RaiPlaySound API and converts to RSS using `podcast` library
 - **API pattern**: Tries multiple URL patterns (`/programmi/`, `/audiolibri/`) when initial fetch fails
-- **Caching**: 1-minute HTTP response cache via `apicache` middleware
+- **Caching**: 1-minute HTTP response cache via `@fastify/caching` plugin
+- **Compression**: Automatic content compression via `@fastify/compress` plugin
+- **Reverse Proxy**: Proper handling via Fastify's built-in `trustProxy` configuration
 
 ## Key Data Flow
 1. Client requests `/{podcast_id}` or `/{servizio}/{programma}`
@@ -27,16 +29,15 @@ npm run test:coverage # Run tests with coverage report
 
 ## Testing Strategy
 - **Unit tests**: Mock-based testing for RSS generation logic
-- **Integration tests**: Supertest for HTTP endpoint behavior
-- **Middleware tests**: Comprehensive coverage of `publicUrl` middleware
+- **Integration tests**: Fastify inject method for HTTP endpoint behavior
 - **Mock data**: `test/fixtures.ts` contains complete RaiPlaySound API response structures
 - **Jest config**: TypeScript support with node environment
 
 ## TypeScript Patterns
 - **Type definitions**: `src/RaiPlaySound.d.ts` contains extensive API response types
 - **URL construction**: Helper functions `weblink()`, `image()`, `audio()` handle RaiPlaySound URL patterns
-- **Express extensions**: Custom middleware in `src/publicUrl.ts` adds `req.publicUrl` property
-- **Express 5 compatibility**: Uses separate routes for optional parameters due to path-to-regexp changes
+- **Fastify extensions**: Custom request properties `publicUrl`, `urlBase`, `clientIp` added via onRequest hook
+- **Plugin architecture**: Uses official Fastify plugins for caching and compression
 
 ## External Dependencies
 - **RaiPlaySound API**: `https://www.raiplaysound.it/{category}/{id}.json`

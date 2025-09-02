@@ -1,36 +1,20 @@
-import express, { Request, Response, NextFunction } from 'express';
-import compression from 'compression';
-import { middleware as cache } from 'apicache';
-import { httpLogger } from './logger';
-import publicUrl from './publicUrl';
-import { generateProgrammaFeed } from './RaiPlaySoundRSS';
+import { buildApp } from './app';
 
-const app = express()
-const port = 3000
+// Export buildApp for testing
+export { buildApp };
 
-app.use(compression());
-app.use(httpLogger);
- app.use(publicUrl());
+// Start server
+const start = async () => {
+  const fastify = await buildApp();
 
-const handler = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const contentType = req.accepts(['text/xml', 'application/xml', 'application/rss+xml']);
-   if (contentType === false) {
-     res.status(406).end();
-     return;
-   }
-    res.set('Content-Type', contentType);
-    const feed = await generateProgrammaFeed(req.params, { feedUrl: req.publicUrl });
-    res.send(feed);
-  } catch (error) {
-    next(error);
+    await fastify.listen({ port: 3000, host: '0.0.0.0' });
+    fastify.log.info('Listening on port 3000');
+  } catch (err) {
+    fastify.log.error(err);
+    process.exit(1);
   }
 };
 
-app.get('/:servizio/:programma', cache('1 minute'), handler);
-app.get('/:programma', cache('1 minute'), handler);
-
-app.listen(port, () => {
-  console.log(`Listening on port ${port}`)
-})
+start();
 
