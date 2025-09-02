@@ -121,10 +121,8 @@ describe('Server Integration', () => {
         });
 
         expect(response.statusCode).toBe(200);
-        expect(
-          ['application/rss+xml; charset=utf-8', 'application/xml; charset=utf-8', 'text/xml; charset=utf-8']
-            .includes(response.headers['content-type'] || '')
-        ).toBe(true);
+        expect(['application/rss+xml; charset=utf-8', 'application/xml; charset=utf-8', 'text/xml; charset=utf-8'])
+          .toContain(response.headers['content-type']);
       }
     });
 

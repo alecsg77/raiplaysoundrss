@@ -1,32 +1,8 @@
 import Fastify, { FastifyInstance, FastifyRequest, FastifyReply, FastifyServerOptions } from 'fastify';
 import compress from '@fastify/compress';
 import fastifyCaching from '@fastify/caching';
+import accepts from '@fastify/accepts';
 import { generateProgrammaFeed } from './RaiPlaySoundRSS';
-
-// Content negotiation utility function
-function parseAcceptHeader(acceptHeader: string): string | null {
-  const supportedTypes = ['text/xml', 'application/xml', 'application/rss+xml'];
-  
-  // Split Accept header by comma and check each media type
-  const acceptedTypes = acceptHeader.split(',').map(type => type.trim().toLowerCase());
-  
-  let acceptedType: string | null = null;
-  
-  // Check for supported types
-  for (const type of supportedTypes) {
-    if (acceptedTypes.some(accepted => accepted.startsWith(type))) {
-      acceptedType = type;
-      break;
-    }
-  }
-  
-  // If no supported type, check for wildcard
-  if (!acceptedType && acceptedTypes.some(accepted => accepted.startsWith('*/*'))) {
-    acceptedType = 'application/rss+xml';
-  }
-  
-  return acceptedType;
-}
 
 export async function buildApp(opts: Partial<FastifyServerOptions> = {}): Promise<FastifyInstance> {
   const app = Fastify({
@@ -37,6 +13,7 @@ export async function buildApp(opts: Partial<FastifyServerOptions> = {}): Promis
 
   // Register plugins
   await app.register(compress);
+  await app.register(accepts);
   
   // Cache configuration matching original Express setup (1-minute TTL)
   // privacy: 'private' sets Cache-Control: private (cacheable by browsers, not shared caches)
@@ -68,8 +45,9 @@ export async function buildApp(opts: Partial<FastifyServerOptions> = {}): Promis
     Params: { servizio?: string; programma: string }
   }>, reply: FastifyReply) => {
     try {
-      // Check Accept header for supported content types
-      const acceptedType = parseAcceptHeader(request.headers.accept || '');
+      // Check Accept header for supported content types using @fastify/accepts
+      const supportedTypes = ['text/xml', 'application/xml', 'application/rss+xml'];
+      const acceptedType = request.type(supportedTypes);
       
       if (!acceptedType) {
         reply.code(406).send();
