@@ -88,7 +88,7 @@ export async function buildApp(opts: Partial<FastifyServerOptions> = {}): Promis
       reply.send(feed);
     } catch (error) {
       app.log.error(error);
-      reply.code(500).send(error);
+      reply.code(500).send({ error: "Internal Server Error" });
     }
   };
 
