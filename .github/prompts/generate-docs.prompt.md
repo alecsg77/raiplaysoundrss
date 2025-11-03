@@ -1,6 +1,8 @@
 <!-- Inspired by: https://github.com/github/awesome-copilot/blob/main/prompts/github-copilot-starter.prompt.md -->
 ---
 mode: 'agent'
+model: Claude Sonnet 4
+tools: []
 description: 'Generate comprehensive documentation for code, APIs, and project components'
 ---
 
