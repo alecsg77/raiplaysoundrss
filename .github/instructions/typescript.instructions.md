@@ -23,7 +23,7 @@ Apply the [testing](./testing.instructions.md), [security](./security.instructio
 - Centralize error mapping and response shape; propagate meaningful HTTP status codes.
 
 ## Domain Rules
-- Format dates using Italian conventions (“DD MMM YYYY”).
+- Format dates using Italian conventions: use “DD MMM YYYY” for Italian literal dates (e.g., `post.literal_publication_date`), and “DD-MM-YYYY hh:mm:ss” for structured API dates (e.g., `programmaInfo.block.update_date`).
 - Always set iTunes `explicit` to “no” for all content.
 - Enforce Content-Type negotiation; return 406 when requests are not acceptable.
 
