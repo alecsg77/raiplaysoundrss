@@ -12,7 +12,7 @@ These are the project-wide guardrails for Copilot usage in this repository. Appl
 - Minimal dependencies, predictable behavior, and clear observability for API behavior and error conditions.
 
 ## Architecture Summary
-- Entry Point: `src/server.ts` hosts Express routes for `/:servizio/:programma` and `/:servizio`.
+- Entry Point: `src/server.ts` hosts Express routes for `/:servizio/:programma` and `/:programma`.
 - Core Logic: `src/RaiPlaySoundRSS.ts` fetches and transforms JSON to RSS using the `podcast` library.
 - API Patterns: Attempt multiple RaiPlaySound endpoints (`/programmi/`, `/audiolibri/`) on failure.
 - Caching: 1-minute cache via `apicache` with correct Content-Type negotiation.
