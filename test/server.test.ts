@@ -1,22 +1,14 @@
-import request from 'supertest';
-import express, { Request, Response, NextFunction } from 'express';
-import compression from 'compression';
-import { httpLogger } from '../src/logger';
-import publicUrl from '../src/publicUrl';
+import { FastifyInstance } from 'fastify';
+import { buildApp } from '../src/app';
 
-// Mock apicache middleware to avoid test environment issues
-jest.mock('apicache', () => ({
-  middleware: jest.fn(() => (req: Request, res: Response, next: NextFunction) => next())
-}));
-
-// Import the mocked cache
-import { middleware as cache } from 'apicache';
-
-// Mock the RSS generation module
-const mockGenerateProgrammaFeed = jest.fn();
+// Mock the RSS generation module first
 jest.mock('../src/RaiPlaySoundRSS', () => ({
-  generateProgrammaFeed: mockGenerateProgrammaFeed
+  generateProgrammaFeed: jest.fn()
 }));
+
+// Import the mock after mocking
+import { generateProgrammaFeed } from '../src/RaiPlaySoundRSS';
+const mockGenerateProgrammaFeed = generateProgrammaFeed as jest.MockedFunction<typeof generateProgrammaFeed>;
 
 const mockRssXml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">
@@ -28,54 +20,33 @@ const mockRssXml = `<?xml version="1.0" encoding="UTF-8"?>
   </channel>
 </rss>`;
 
-// Create test app similar to server.ts
-const createTestApp = () => {
-  const app = express();
-  app.use(compression());
-  app.use(httpLogger);
-  app.use(publicUrl());
-
-  // Handle both single and double parameter routes - skip caching in tests
-  const handler = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const contentType = req.accepts(['text/xml', 'application/xml', 'application/rss+xml']);
-      if (contentType === false) {
-        res.status(406).end();
-        return;
-      }
-      res.set('Content-Type', contentType);
-      const feed = await mockGenerateProgrammaFeed(req.params, { feedUrl: req.publicUrl });
-      res.send(feed);
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  app.get('/:servizio/:programma', handler);
-  app.get('/:programma', handler);
-
-  return app;
-};
-
 describe('Server Integration', () => {
-  let app: express.Application;
+  let app: any; // Use any to bypass TypeScript definition issues
 
-  beforeEach(() => {
-    app = createTestApp();
+  beforeEach(async () => {
+    app = await buildApp({ logger: false }); // Disable logging in tests
     mockGenerateProgrammaFeed.mockClear();
+  });
+
+  afterEach(async () => {
+    await app.close();
   });
 
   describe('GET /:programma', () => {
     it('should return RSS feed for single programma parameter', async () => {
       mockGenerateProgrammaFeed.mockResolvedValue(mockRssXml);
 
-      const response = await request(app)
-        .get('/test-podcast')
-        .set('Accept', 'application/rss+xml')
-        .expect(200);
+      const response = await app.inject({
+        method: 'GET',
+        url: '/test-podcast',
+        headers: {
+          'Accept': 'application/rss+xml'
+        }
+      });
 
+      expect(response.statusCode).toBe(200);
       expect(response.headers['content-type']).toBe('application/rss+xml; charset=utf-8');
-      expect(response.text).toBe(mockRssXml);
+      expect(response.body).toBe(mockRssXml);
       expect(mockGenerateProgrammaFeed).toHaveBeenCalledWith(
         { programma: 'test-podcast' },
         expect.objectContaining({ feedUrl: expect.stringContaining('/test-podcast') })
@@ -85,13 +56,17 @@ describe('Server Integration', () => {
     it('should return RSS feed for servizio and programma parameters', async () => {
       mockGenerateProgrammaFeed.mockResolvedValue(mockRssXml);
 
-      const response = await request(app)
-        .get('/test-service/test-program')
-        .set('Accept', 'text/xml')
-        .expect(200);
+      const response = await app.inject({
+        method: 'GET',
+        url: '/test-service/test-program',
+        headers: {
+          'Accept': 'text/xml'
+        }
+      });
 
+      expect(response.statusCode).toBe(200);
       expect(response.headers['content-type']).toBe('text/xml; charset=utf-8');
-      expect(response.text).toBe(mockRssXml);
+      expect(response.body).toBe(mockRssXml);
       expect(mockGenerateProgrammaFeed).toHaveBeenCalledWith(
         { servizio: 'test-service', programma: 'test-program' },
         expect.objectContaining({ feedUrl: expect.any(String) })
@@ -99,21 +74,30 @@ describe('Server Integration', () => {
     });
 
     it('should return 406 for unsupported Accept header', async () => {
-      await request(app)
-        .get('/test-podcast')
-        .set('Accept', 'text/plain')
-        .expect(406);
+      const response = await app.inject({
+        method: 'GET',
+        url: '/test-podcast',
+        headers: {
+          'Accept': 'text/plain'
+        }
+      });
 
+      expect(response.statusCode).toBe(406);
       expect(mockGenerateProgrammaFeed).not.toHaveBeenCalled();
     });
 
     it('should handle API errors gracefully', async () => {
       mockGenerateProgrammaFeed.mockRejectedValue(new Error('API Error'));
 
-      await request(app)
-        .get('/test-podcast')
-        .set('Accept', 'application/rss+xml')
-        .expect(500);
+      const response = await app.inject({
+        method: 'GET',
+        url: '/test-podcast',
+        headers: {
+          'Accept': 'application/rss+xml'
+        }
+      });
+
+      expect(response.statusCode).toBe(500);
     });
 
     it('should use correct content-type negotiation', async () => {
@@ -128,11 +112,15 @@ describe('Server Integration', () => {
       ];
 
       for (const acceptHeader of acceptHeaders) {
-        const response = await request(app)
-          .get('/test-podcast')
-          .set('Accept', acceptHeader)
-          .expect(200);
+        const response = await app.inject({
+          method: 'GET',
+          url: '/test-podcast',
+          headers: {
+            'Accept': acceptHeader
+          }
+        });
 
+        expect(response.statusCode).toBe(200);
         expect(['application/rss+xml; charset=utf-8', 'application/xml; charset=utf-8', 'text/xml; charset=utf-8'])
           .toContain(response.headers['content-type']);
       }
@@ -141,12 +129,16 @@ describe('Server Integration', () => {
     it('should include public URL in feed when available', async () => {
       mockGenerateProgrammaFeed.mockResolvedValue(mockRssXml);
 
-      await request(app)
-        .get('/test-podcast')
-        .set('Accept', 'application/rss+xml')
-        .set('Host', 'example.com:3000')
-        .expect(200);
+      const response = await app.inject({
+        method: 'GET',
+        url: '/test-podcast',
+        headers: {
+          'Accept': 'application/rss+xml',
+          'Host': 'example.com:3000'
+        }
+      });
 
+      expect(response.statusCode).toBe(200);
       expect(mockGenerateProgrammaFeed).toHaveBeenCalledWith(
         { programma: 'test-podcast' },
         expect.objectContaining({ feedUrl: 'http://example.com:3000/test-podcast' })
