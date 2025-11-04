@@ -1,54 +1,42 @@
-# RaiPlaySoundRSS Copilot Instructions
+<!-- Inspired by: https://github.com/github/awesome-copilot/blob/main/docs/README.collections.md -->
+---
+description: "Project-wide GitHub Copilot instructions for RaiPlaySoundRSS (TypeScript + Express microservice)"
+---
 
-## Project Overview
-A TypeScript Fastify service that converts RaiPlaySound podcast metadata into RSS feeds. Single-purpose microservice with minimal dependencies.
+# RaiPlaySoundRSS — Copilot Instructions
 
-## Architecture
-- **Entry point**: `src/server.ts` - Fastify app with routes for `/:servizio/:programma` and `/:servizio`
-- **Core logic**: `src/RaiPlaySoundRSS.ts` - Fetches JSON from RaiPlaySound API and converts to RSS using `podcast` library
-- **API pattern**: Tries multiple URL patterns (`/programmi/`, `/audiolibri/`) when initial fetch fails
-- **Caching**: 1-minute HTTP response cache via `@fastify/caching` plugin
-- **Compression**: Automatic content compression via `@fastify/compress` plugin
-- **Reverse Proxy**: Proper handling via Fastify's built-in `trustProxy` configuration
+These are the project-wide guardrails for Copilot usage in this repository. Apply these guidelines consistently across all code, reviews, and documentation.
 
-## Key Data Flow
-1. Client requests `/{podcast_id}` or `/{servizio}/{programma}`
-2. `fetchProgramma()` tries RaiPlaySound endpoints in sequence
-3. `toFeed()` transforms JSON to RSS using iTunes podcast standards
-4. Response cached for 1 minute, served with proper Content-Type negotiation
+## Scope and Intent
+- Single-purpose TypeScript Express microservice that transforms RaiPlaySound JSON metadata into RSS using iTunes-compatible structures.
+- Minimal dependencies, predictable behavior, and clear observability for API behavior and error conditions.
 
-## Development Workflows
-```bash
-npm run watch        # Development with nodemon
-npm run build        # Lint + esbuild bundle 
-npm run start        # Build + run production
-npm test            # Run test suite
-npm run test:watch  # Run tests in watch mode
-npm run test:coverage # Run tests with coverage report
-```
+## Architecture Summary
+- Entry Point: `src/server.ts` hosts Express routes for `/:servizio/:programma` and `/:programma`.
+- Core Logic: `src/RaiPlaySoundRSS.ts` fetches and transforms JSON to RSS using the `podcast` library.
+- API Patterns: Attempt multiple RaiPlaySound endpoints (`/programmi/`, `/audiolibri/`) on failure.
+- Caching: 1-minute cache via `apicache` with correct Content-Type negotiation.
 
-## Testing Strategy
-- **Unit tests**: Mock-based testing for RSS generation logic
-- **Integration tests**: Fastify inject method for HTTP endpoint behavior
-- **Mock data**: `test/fixtures.ts` contains complete RaiPlaySound API response structures
-- **Jest config**: TypeScript support with node environment
+## Development Conventions
+- TypeScript strictness, clear types for external API shapes (see `src/RaiPlaySound.d.ts`).
+- Prefer small, cohesive modules with explicit inputs/outputs.
+- Respect Italian date formats (“DD MMM YYYY”) and set iTunes `explicit` flag to “no” for all content.
+- Implement content negotiation consistently; return 406 when unacceptable.
 
-## TypeScript Patterns
-- **Type definitions**: `src/RaiPlaySound.d.ts` contains extensive API response types
-- **URL construction**: Helper functions `weblink()`, `image()`, `audio()` handle RaiPlaySound URL patterns
-- **Fastify extensions**: Custom request properties `publicUrl`, `urlBase`, `clientIp` added via onRequest hook
-- **Plugin architecture**: Uses official Fastify plugins for caching and compression
+## Testing Strategy (see testing instructions)
+- Unit tests for transformation and URL helpers; integration tests for HTTP routes using Supertest.
+- Fixtures in `test/fixtures.ts` mirror real RaiPlaySound responses.
+- Track coverage, especially for middleware like `publicUrl`.
 
-## External Dependencies
-- **RaiPlaySound API**: `https://www.raiplaysound.it/{category}/{id}.json`
-- **Audio URLs**: Transforms `.htm` to `.mp3` in audio URLs
-- **Image/link resolution**: All relative URLs converted to absolute using `baseUrl`
+## Linked Guidelines
+- Language: [TypeScript](./instructions/typescript.instructions.md)
+- Testing: [Testing](./instructions/testing.instructions.md)
+- Documentation: [Documentation](./instructions/documentation.instructions.md)
+- Security: [Security](./instructions/security.instructions.md)
+- Performance: [Performance](./instructions/performance.instructions.md)
+- Review: [Code Review](./instructions/code-review.instructions.md)
 
-## Docker Deployment
-Multi-stage build: compile TypeScript → minimal Alpine runtime. Uses `tini` for signal handling.
-
-## Critical Conventions
-- All Italian podcast metadata (dates use "DD MMM YYYY" Italian format)
-- iTunes explicit flag always set to "no" for all content
-- Error handling: Falls through multiple API endpoint attempts before failing
-- Content-Type negotiation: Accepts XML variants, returns 406 if not supported
+## Copilot Usage
+- Use prompts in `.github/prompts/` for repeatable tasks (tests, refactors, docs, reviews).
+- Use chat modes in `.github/chatmodes/` for planning, review, and debugging workflows.
+- Keep generated changes aligned with the instructions above; prefer composition, clear naming, and small diffs.
